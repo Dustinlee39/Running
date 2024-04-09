@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Trivia Challenge</title>
+    <style>
+        /* CSS styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-image: url('https://cdn.pixabay.com/photo/2016/08/25/15/09/pokemon-1613058_960_720.png');
+            background-size: cover;
+        }
+
+        .container {
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white background */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #e50000; /* Pokémon Red color */
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #007bff; /* Pokémon Blue color */
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease; /* Smooth background color transition on hover */
+        }
+
+        button:hover {
+            background-color: #0056b3; /* Darker blue color on hover */
+        }
+
+        .answer-option {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .answer-option label {
+            margin-right: 10px;
+        }
+
+        #confirm-button {
+            margin-top: 20px;
+        }
+
+        #game-title {
+            display: block;
+        }
+
+        #game-container {
+            display: none;
+        }
+
+        #progress-bar-container {
+            background-color: #ddd;
+            border-radius: 5px;
+            margin-top: 20px;
+            width: 80%;
+            margin: 20px auto;
+            overflow: hidden;
+        }
+
+        #progress-bar {
+            height: 20px;
+            width: 0;
+            background-color: #007bff;
+            transition: width 0.5s ease;
+        }
+
+        #feedback-container {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="game-title">Pokémon Trivia Challenge</h1>
+        <button id="start-button" onclick="startTest()">Start Test</button>
+    </div>
+
+    <div class="container" id="game-container">
+        <div class="question" id="question-container"></div>
+        <div class="answer-option" id="answer-container"></div>
+        <button id="confirm-button" onclick="checkAnswer()">Confirm Answer</button>
+        <div class="feedback" id="feedback-container"></div>
+        <div class="progress-bar-container" id="progress-bar-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript logic
+        var allQuestions = [
+            { question: "Which Pokémon is also known as the 'Mouse Pokémon'?", options: ["Pikachu", "Charizard", "Squirtle", "Jigglypuff"], answer: "Pikachu" },
+            { question: "What type of Pokémon is Bulbasaur?", options: ["Grass", "Fire", "Water", "Electric"], answer: "Grass" },
+            { question: "What is the name of the legendary Pokémon that can control time?", options: ["Dialga", "Palkia", "Arceus", "Giratina"], answer: "Dialga" },
+            { question: "Which Pokémon evolves into Gyarados?", options: ["Magikarp", "Squirtle", "Charmander", "Pikachu"], answer: "Magikarp" },
+            { question: "What type of Pokémon is Charmander?", options: ["Fire", "Water", "Grass", "Electric"], answer: "Fire" },
+            { question: "Which Pokémon is known as the 'Shellfish Pokémon'?", options: ["Shellder", "Slowpoke", "Staryu", "Squirtle"], answer: "Shellder" },
+            { question: "What is the first Pokémon in the Pokédex?", options: ["Bulbasaur", "Pikachu", "Charmander", "Squirtle"], answer: "Bulbasaur" },
+            { question: "Which Pokémon is known as the 'Seed Pokémon'?", options: ["Bulbasaur", "Chikorita", "Oddish", "Bellsprout"], answer: "Bulbasaur" },
+            { question: "What type of Pokémon is Jolteon?", options: ["Electric", "Fire", "Water", "Grass"], answer: "Electric" },
+            { question: "Which Pokémon is known as the 'Tiny Bird Pokémon'?", options: ["Pidgey", "Spearow", "Zubat", "Rattata"], answer: "Pidgey" }
+        ];
+
+        var maxQuestions = 10;
+
+        function shuffleArray(array) {
+            for (var i = array.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var temp = array[i];
+                array[i] = array[j];
+                array[j] = temp;
+            }
+            return array;
+        }
+
+        function selectRandomQuestions() {
+            var shuffledQuestions = shuffleArray(allQuestions);
+            return shuffledQuestions.slice(0, maxQuestions);
+        }
+
+        var questions;
+        var currentQuestionIndex;
+        var score;
+
+        function displayQuestion() {
+            var questionContainer = document.getElementById("question-container");
+            var answerContainer = document.getElementById("answer-container");
+            var options = questions[currentQuestionIndex].options;
+
+            if (currentQuestionIndex < maxQuestions - 1) {
+                questionContainer.textContent = questions[currentQuestionIndex].question;
+                answerContainer.innerHTML = '';
+                options.forEach(function(option, index) {
+                    var input = document.createElement("input");
+                    input.type = "radio";
+                    input.id = "option" + index;
+                    input.name = "answer";
+                    input.value = option;
+                    var label = document.createElement("label");
+                    label.htmlFor = "option" + index;
+                    label.textContent = option;
+                    answerContainer.appendChild(input);
+                    answerContainer.appendChild(label);
+                });
+                document.getElementById("progress-bar").style.width = ((currentQuestionIndex + 1) / maxQuestions* 100) + "%";
+            } else {
+                endTest();
+            }
+        }
+
+        function startTest() {
+            questions = selectRandomQuestions();
+            currentQuestionIndex = 0;
+            score = 0;
+            displayQuestion();
+            document.getElementById("game-container").style.display = "block";
+            document.getElementById("game-title").style.display = "none";
+            document.getElementById("start-button").style.display = "none";
+        }
+
+        function endTest() {
+            alert("You've completed the test! Final score: " + score);
+            document.getElementById("game-container").style.display = "none";
+            document.getElementById("start-button").style.display = "block";
+        }
+
+        function checkAnswer() {
+            var playerAnswer = document.querySelector('input[name="answer"]:checked');
+            if (!playerAnswer) {
+                alert("Please select an answer.");
+                return;
+            }
+            playerAnswer = playerAnswer.value;
+            var correctAnswer = questions[currentQuestionIndex].answer;
+            if (playerAnswer.trim().toLowerCase() === correctAnswer.toLowerCase()) {
+                score++;
+                document.getElementById("feedback-container").textContent = "Correct! Your score is now: " + score;
+            } else {
+                document.getElementById("feedback-container").textContent = "Incorrect! The correct answer is: " + correctAnswer;
+            }
+            currentQuestionIndex++;
+            displayQuestion();
+        }
+    </script>
+</body>
+</html>
