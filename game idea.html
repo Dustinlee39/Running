@@ -15,8 +15,8 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-image: url('https://cdn.pixabay.com/photo/2016/08/25/15/09/pokemon-1613058_960_720.png');
             background-size: cover;
+            transition: background-image 0.5s ease; /* Smooth background image transition */
         }
 
         .container {
@@ -127,86 +127,131 @@
             { question: "Which Pokémon is known as the 'Tiny Bird Pokémon'?", options: ["Pidgey", "Spearow", "Zubat", "Rattata"], answer: "Pidgey" }
         ];
 
-        var maxQuestions = 10;
+// Array of Pokémon images
+var allPokemonImages = [
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png', // Pikachu
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png', // Charmander
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png', // Squirtle
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png', // Pikachu
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/152.png', // Chikorita
+    // Add more image URLs here...
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/155.png', // Cyndaquil
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/158.png', // Totodile
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/252.png', // Treecko
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/255.png', // Torchic
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/258.png', // Mudkip
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/387.png', // Turtwig
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/390.png', // Chimchar
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/393.png', // Piplup
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/495.png', // Snivy
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/498.png', // Tepig
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/501.png', // Oshawott
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/650.png', // Chespin
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/653.png', // Fennekin
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/656.png', // Froakie
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/722.png', // Rowlet
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/725.png', // Litten
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/728.png', // Popplio
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/810.png', // Grookey
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/813.png', // Scorbunny
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/816.png', // Sobble
+    // Add more image URLs here...
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/895.png', // Regidrago
+];
 
-        function shuffleArray(array) {
-            for (var i = array.length - 1; i > 0; i--) {
-                var j = Math.floor(Math.random() * (i + 1));
-                var temp = array[i];
-                array[i] = array[j];
-                array[j] = temp;
-            }
-            return array;
-        }
+var maxQuestions = 10;
 
-        function selectRandomQuestions() {
-            var shuffledQuestions = shuffleArray(allQuestions);
-            return shuffledQuestions.slice(0, maxQuestions);
-        }
+// Function to shuffle an array
+function shuffleArray(array) {
+    for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+    return array;
+}
 
-        var questions;
-        var currentQuestionIndex;
-        var score;
+// Function to select random questions
+function selectRandomQuestions() {
+    var shuffledQuestions = shuffleArray(allQuestions);
+    return shuffledQuestions.slice(0, maxQuestions);
+}
 
-        function displayQuestion() {
-            var questionContainer = document.getElementById("question-container");
-            var answerContainer = document.getElementById("answer-container");
-            var options = questions[currentQuestionIndex].options;
+// Function to select a random subset of unique Pokémon images
+function selectRandomPokemonImages() {
+    var shuffledImages = shuffleArray(allPokemonImages);
+    return shuffledImages.slice(0, maxQuestions);
+}
 
-            if (currentQuestionIndex < maxQuestions - 1) {
-                questionContainer.textContent = questions[currentQuestionIndex].question;
-                answerContainer.innerHTML = '';
-                options.forEach(function(option, index) {
-                    var input = document.createElement("input");
-                    input.type = "radio";
-                    input.id = "option" + index;
-                    input.name = "answer";
-                    input.value = option;
-                    var label = document.createElement("label");
-                    label.htmlFor = "option" + index;
-                    label.textContent = option;
-                    answerContainer.appendChild(input);
-                    answerContainer.appendChild(label);
-                });
-                document.getElementById("progress-bar").style.width = ((currentQuestionIndex + 1) / maxQuestions* 100) + "%";
-            } else {
-                endTest();
-            }
-        }
+var questions;
+var pokemonImages;
+var currentQuestionIndex;
+var score;
 
-        function startTest() {
-            questions = selectRandomQuestions();
-            currentQuestionIndex = 0;
-            score = 0;
-            displayQuestion();
-            document.getElementById("game-container").style.display = "block";
-            document.getElementById("game-title").style.display = "none";
-            document.getElementById("start-button").style.display = "none";
-        }
+function displayQuestion() {
+    var questionContainer = document.getElementById("question-container");
+    var answerContainer = document.getElementById("answer-container");
+    var options = questions[currentQuestionIndex].options;
+    
+    // Set background image
+    document.body.style.backgroundImage = "url('" + pokemonImages[currentQuestionIndex] + "')";
 
-        function endTest() {
-            alert("You've completed the test! Final score: " + score);
-            document.getElementById("game-container").style.display = "none";
-            document.getElementById("start-button").style.display = "block";
-        }
+    if (currentQuestionIndex < maxQuestions - 1) {
+        questionContainer.textContent = questions[currentQuestionIndex].question;
+        answerContainer.innerHTML = '';
+        options.forEach(function(option, index) {
+            var input = document.createElement("input");
+            input.type = "radio";
+            input.id = "option" + index;
+            input.name = "answer";
+            input.value = option;
+            var label = document.createElement("label");
+            label.htmlFor = "option" + index;
+            label.textContent = option;
+            answerContainer.appendChild(input);
+            answerContainer.appendChild(label);
+        });
+        document.getElementById("progress-bar").style.width = ((currentQuestionIndex + 1) / maxQuestions * 100) + "%";
+    } else {
+        endTest();
+    }
+}
 
-        function checkAnswer() {
-            var playerAnswer = document.querySelector('input[name="answer"]:checked');
-            if (!playerAnswer) {
-                alert("Please select an answer.");
-                return;
-            }
-            playerAnswer = playerAnswer.value;
-            var correctAnswer = questions[currentQuestionIndex].answer;
-            if (playerAnswer.trim().toLowerCase() === correctAnswer.toLowerCase()) {
-                score++;
-                document.getElementById("feedback-container").textContent = "Correct! Your score is now: " + score;
-            } else {
-                document.getElementById("feedback-container").textContent = "Incorrect! The correct answer is: " + correctAnswer;
-            }
-            currentQuestionIndex++;
-            displayQuestion();
-        }
-    </script>
+function startTest() {
+    questions = selectRandomQuestions();
+    pokemonImages = selectRandomPokemonImages();
+    currentQuestionIndex = 0;
+    score = 0;
+    displayQuestion();
+    document.getElementById("game-container").style.display = "block";
+    document.getElementById("game-title").style.display = "none";
+    document.getElementById("start-button").style.display = "none";
+}
+
+function endTest() {
+    alert("You've completed the test! Final score: " + score);
+    document.getElementById("game-container").style.display = "none";
+    document.getElementById("start-button").style.display = "block";
+}
+
+function checkAnswer() {
+    var playerAnswer = document.querySelector('input[name="answer"]:checked');
+    if (!playerAnswer) {
+        alert("Please select an answer.");
+        return;
+    }
+    playerAnswer = playerAnswer.value;
+    var correctAnswer = questions[currentQuestionIndex].answer;
+    if (playerAnswer.trim().toLowerCase() === correctAnswer.toLowerCase()) {
+        score++;
+        document.getElementById("feedback-container").textContent = "Correct! Your score is now: " + score;
+    } else {
+        document.getElementById("feedback-container").textContent = "Incorrect! The correct answer is: " + correctAnswer;
+    }
+    currentQuestionIndex++;
+    displayQuestion();
+}
+</script>
 </body>
 </html>
